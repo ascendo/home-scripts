@@ -1,0 +1,25 @@
+/psc/bioinformatics/zihailing/tool/run_bwa_dir.pl -p s195 -i /psc/bioinformatics/zihailing/Ath/TAIR10_genome.fa -r s195_R# # 2015/03/30   09:17:59@node101.psc.ac.cn	COM: 
+
+samtools mpileup -uD -f /psc/bioinformatics/zihailing/Ath/TAIR10_genome.fa s195.sort.bam |bcftools view -vcg - >s195.vcf # 2015/03/31   15:52:43@node100.psc.ac.cn	COM: 
+
+cat s195.vcf | /psc/program/install/vcftools_0.1.12/bin/vcf-annotate -n -H -f +/c=2,10/Q=60/d=10/D=200 | tee s195.filter.vcf | perl /psc/bioinformatics/zihailing/tool/select_ems.pl >s195.filter.ems.vcf # 2015/03/31   16:13:33@node100.psc.ac.cn	COM: 
+
+ /psc/bioinformatics/zihailing/tool/filter_bg_snp.pl s195.filter.ems.vcf ../bri101_all.sort.bam 0.1 >s195_filter_bg.vcf # 2015/03/31   04:31:42@node101.psc.ac.cn	COM: 
+
+
+/psc/bioinformatics/zihailing/tool/snpEff/snpEff download athalianaTair10 # 2015/03/31   19:54:41@node104.psc.ac.cn	COM: 
+
+/psc/bioinformatics/zihailing/tool/snpEff/snpEff eff athalianaTair10 s195_filter_bg.vcf >s195_filter_bg_snp_annotation # 2015/03/31   19:55:04@node104.psc.ac.cn	COM: 
+
+grep -E '^Chr1' s195_filter_bg_snp_annotation_table |awk '>9000000 &&  < 11000000 {print -bash}' >annotated_gene_in_range_ems # 2015/04/01   15:00:57@node104.psc.ac.cn	COM: 
+
+samtools flagstat s195.sort.bam # 2015/04/01   18:39:29@node104.psc.ac.cn	COM: 
+
+perl /psc/bioinformatics/zihailing/tool/format_snp_eff_vcf_2_tab.pl s195_filter_bg_snp_annotation s195.sort.bam ../bri101_all.sort.bam >s195_filter_bg_snp_annotation_table # 2015/04/01   08:18:01@node101.psc.ac.cn	COM: 
+
+perl function_annotate.pl s195_filter_bg_snp_modified_annotation_table /psc/bioinformatics/zihailing/tool/TAIR10_functional_descriptions_20130831.txt >s195_filter_bg_snp_modified_annotation_function_table # 2015/04/01   22:59:28@node101.psc.ac.cn	COM: 
+
+perl eff_table_modify.pl s195_filter_bg_snp_annotation_table >s195_filter_bg_snp_modified_annotation_table # 2015/04/01   23:20:33@node101.psc.ac.cn	COM: 
+
+cat s195_filter_bg_snp_modified_annotation_function_table |awk '($2>9000000 && $2< 11000000 && ~/^Chr1/)||NR==1 {print -bash}'  >s195_annotated_gene_in_range # 2015/04/02   02:15:34@node101.psc.ac.cn	COM: 
+

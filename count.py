@@ -1,0 +1,1 @@
+//psc/program/install/python-2.7.6/lib/python2.7/site-packages/HTSeq-0.6.1p1-py2.7-linux-x86_64.egg/HTSeq/scripts/count.py
